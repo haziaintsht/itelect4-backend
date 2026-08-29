@@ -34,9 +34,23 @@ app.use((_req: Request, res: Response) => {
 
 // Central error handler. Express 5 automatically forwards rejected async
 // handlers here, so controllers need no try/catch of their own.
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ message: "Server error" });
-});
+// Mongoose throws specific error types -- turn those into 400s (client's
+// fault) and only fall back to 500 for genuinely unexpected failures.
+app.use(
+  (err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    // ValidationError: a schema rule (required / enum / maxlength) broke.
+    if (err.name === "ValidationError") {
+      res.status(400).json({ message: err.message });
+      return;
+    }
+    // CastError: a route parameter is not a valid ObjectId.
+    if (err.name === "CastError") {
+      res.status(400).json({ message: "Invalid id format" });
+      return;
+    }
+    console.error(err.stack);
+    res.status(500).json({ message: "Server error" });
+  }
+);
 
 export default app;
