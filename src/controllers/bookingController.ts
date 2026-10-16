@@ -6,25 +6,34 @@ import { BookingModel, type IBooking } from "../models/Booking";
 import { SessionModel } from "../models/Session";
 import { BookingStatus, type AuthenticatedRequest } from "../types";
 
-// GET /api/bookings -- only YOUR bookings
+// GET /api/bookings -- only bookings YOU are part of (you booked it, or
+// you are the tutor it was sent to).
 export async function listBookings(
   req: Request,
   res: Response
 ): Promise<void> {
   const userId = (req as AuthenticatedRequest).userId;
-  const bookings = await BookingModel.find({ tutee: userId })
+  const bookings = await BookingModel.find({
+    $or: [{ tutee: userId }, { tutor: userId }],
+  })
     .populate("session", "title subject")
+    .populate("tutee", "name")
     .populate("tutor", "name");
   res.json(bookings);
 }
 
-// GET /api/bookings/:id
+// GET /api/bookings/:id -- scoped: someone else's booking is a 404 for you.
 export async function getBooking(
   req: Request,
   res: Response
 ): Promise<void> {
-  const booking = await BookingModel.findById(req.params.id)
+  const userId = (req as AuthenticatedRequest).userId;
+  const booking = await BookingModel.findOne({
+    _id: req.params.id,
+    $or: [{ tutee: userId }, { tutor: userId }],
+  })
     .populate("session", "title subject")
+    .populate("tutee", "name")
     .populate("tutor", "name");
   if (!booking) {
     res.status(404).json({ message: "Booking not found" });
@@ -65,14 +74,28 @@ export async function createBooking(
   res.status(201).json(booking);
 }
 
-// PATCH /api/bookings/:id -- update the status or the note
+// PATCH /api/bookings/:id -- only `status` and `note` can be updated, and
+// only on a booking you are part of. req.body is NOT passed through: a
+// client can never reassign `tutee`/`tutor`/`session` and hijack scope.
 export async function updateBooking(
   req: Request,
   res: Response
 ): Promise<void> {
-  const updates = req.body as Partial<IBooking>;
-  const booking = await BookingModel.findByIdAndUpdate(
-    req.params.id,
+  const userId = (req as AuthenticatedRequest).userId;
+  const { status, note } = req.body as {
+    status?: BookingStatus;
+    note?: string;
+  };
+
+  const updates: Partial<Pick<IBooking, "status" | "note">> = {};
+  if (status !== undefined) updates.status = status;
+  if (note !== undefined) updates.note = note;
+
+  const booking = await BookingModel.findOneAndUpdate(
+    {
+      _id: req.params.id,
+      $or: [{ tutee: userId }, { tutor: userId }],
+    },
     updates,
     {
       new: true, // return the document AFTER the update
@@ -89,12 +112,16 @@ export async function updateBooking(
   res.json(booking);
 }
 
-// DELETE /api/bookings/:id
+// DELETE /api/bookings/:id -- scoped the same way as GET/PATCH.
 export async function deleteBooking(
   req: Request,
   res: Response
 ): Promise<void> {
-  const booking = await BookingModel.findByIdAndDelete(req.params.id);
+  const userId = (req as AuthenticatedRequest).userId;
+  const booking = await BookingModel.findOneAndDelete({
+    _id: req.params.id,
+    $or: [{ tutee: userId }, { tutor: userId }],
+  });
   if (!booking) {
     res.status(404).json({ message: "Booking not found" });
     return;

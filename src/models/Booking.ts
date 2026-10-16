@@ -22,7 +22,17 @@ const bookingSchema = new Schema<IBooking>(
       enum: Object.values(BookingStatus),
       default: BookingStatus.REQUESTED,
     },
-    note: { type: String, required: true, trim: true, maxlength: 500 },
+    // GT4's three validation rules on ONE resource: `required` (session/
+    // tutee/tutor/note), `enum` (status, above) and a min/max range here.
+    // 10-160 chars mirrors the frontend Zod rule (bookingSchema.ts) so the
+    // server enforces the same limit the browser already shows.
+    note: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: [10, "note must be at least 10 characters"],
+      maxlength: [160, "note must be at most 160 characters"],
+    },
   },
   { timestamps: true }
 );
