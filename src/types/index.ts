@@ -87,3 +87,20 @@ export interface JwtPayload {
 export interface AuthenticatedRequest extends Request {
   userId: string;
 }
+
+// ===== COURSE (reference data, public) =====
+// The frontend reads courses; nobody creates one through the API, so
+// there is no POST route -- just a list and a single lookup.
+export interface Course {
+  code: string;
+  title: string;
+  units: number;
+  semester: string;
+}
+
+// Mongoose only ever sees CourseDoc, never Course. Pick produces a
+// mapped type, which toJSON's Record<string, unknown> accepts happily.
+export type CourseDoc = Pick<
+  Course,
+  "code" | "title" | "units" | "semester"
+>;

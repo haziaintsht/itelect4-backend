@@ -7,15 +7,28 @@ import express, {
 } from "express";
 import cors from "cors";
 import "dotenv/config";
+import { connectDB } from "./config/db";
 import authRoutes from "./routes/authRoutes";
 import sessionRoutes from "./routes/sessionRoutes";
 import bookingRoutes from "./routes/bookingRoutes";
+import courseRoutes from "./routes/courses";
 
 const app = express();
 
-// Global middleware: CORS (your frontend runs on :3000) + JSON bodies.
-app.use(cors());
+// CORS: only the frontend origin may call this API.
+// Locally: CORS_ORIGIN=http://localhost:3000 lets Vite through.
+// Deployed: set CORS_ORIGIN to your Vercel frontend URL.
+const corsOrigin = process.env.CORS_ORIGIN || "*";
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
+
+// Ensure the database is connected before any route runs.
+// On Vercel there is no server.ts startup step, so every request
+// must wait for connectDB() (which caches the connection per instance).
+app.use(async (_req: Request, _res: Response, next: NextFunction) => {
+  await connectDB();
+  next();
+});
 
 // Health check -- the first thing you test after deploying.
 app.get("/", (_req: Request, res: Response) => {
@@ -26,6 +39,7 @@ app.get("/", (_req: Request, res: Response) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/courses", courseRoutes);
 
 // 404 for anything else.
 app.use((_req: Request, res: Response) => {
