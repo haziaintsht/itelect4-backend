@@ -1,10 +1,12 @@
-// src/models/Session.ts
-// Mirrors the frontend Session interface. The numeric tutorId becomes
-// a real reference to a User document (an ObjectId + ref).
+
+
+
 import mongoose, { Schema, type Model } from "mongoose";
 import { BookingStatus, SessionType } from "../types";
 
-export interface ISession {
+
+
+export type ISession = {
   title: string;
   subject: string;
   description: string;
@@ -12,14 +14,14 @@ export interface ISession {
   status: BookingStatus;
   sessionType: SessionType;
   meetingLink: string;
-}
+};
 
 const sessionSchema = new Schema<ISession>(
   {
     title: { type: String, required: true, trim: true },
     subject: { type: String, required: true },
     description: { type: String, required: true },
-    // ref: "User" lets .populate("tutor") swap the id for the whole doc.
+    
     tutor: { type: Schema.Types.ObjectId, ref: "User", required: true },
     status: {
       type: String,
@@ -35,6 +37,18 @@ const sessionSchema = new Schema<ISession>(
   },
   { timestamps: true }
 );
+
+
+
+
+sessionSchema.set("toJSON", {
+  transform(_doc, ret: Record<string, unknown>) {
+    ret.id = String(ret._id);
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  },
+});
 
 export const SessionModel: Model<ISession> = mongoose.model<ISession>(
   "Session",

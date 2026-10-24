@@ -1,26 +1,62 @@
-// src/seed.ts
-// npm run seed. Run it once after the database is created, and again
-// after anything that empties it. Nothing else in the project writes
-// a course.
 import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDB } from "./config/db";
+import { User } from "./models/User";
+import { SessionModel } from "./models/Session";
 import { Course } from "./models/Course";
+import { SESSIONS } from "./data/sessions";
 import { COURSES } from "./data/courses";
+import { UserRole } from "./types/index";
 
 async function seed(): Promise<void> {
-  await connectDB();
+  const email = process.env.SEED_TUTOR_EMAIL?.toLowerCase();
+  const password = process.env.SEED_TUTOR_PASSWORD;
 
-  for (const course of COURSES) {
-    // upsert: update the row with this code, or insert it if there is
-    // none. Running this a second time leaves three courses, not six.
-    await Course.updateOne({ code: course.code }, course, { upsert: true });
+  if (!email) {
+    throw new Error("SEED_TUTOR_EMAIL is missing. Add it to .env.");
   }
 
+  await connectDB();
+
+  let tutor = await User.findOne({ email });
+
+  if (!tutor) {
+    if (!password) {
+      throw new Error(
+        "SEED_TUTOR_PASSWORD is missing. Add it to .env -- it is only needed the first time.",
+      );
+    }
+    tutor = await User.create({
+      name: "Mina Santos",
+      email,
+      password,
+      role: UserRole.TUTOR,
+      bio: "Calculus and coding mentor",
+      skills: ["Calculus", "TypeScript"],
+    });
+  }
+
+  for (const session of SESSIONS) {
+    await SessionModel.updateOne(
+      { title: session.title, tutor: tutor._id },
+      { ...session, tutor: tutor._id },
+      { upsert: true, runValidators: true },
+    );
+  }
+
+  console.log(
+    `${SESSIONS.length} sessions for ${tutor.name} in ${mongoose.connection.name}`,
+  );
+
+  for (const course of COURSES) {
+    await Course.updateOne(
+      { code: course.code },
+      { ...course },
+      { upsert: true, runValidators: true },
+    );
+  }
   console.log(`${COURSES.length} courses in ${mongoose.connection.name}`);
 
-  // Without this the script never ends: the connection is an open
-  // socket, and Node keeps running while one is still open.
   await mongoose.disconnect();
 }
 

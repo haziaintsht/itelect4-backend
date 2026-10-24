@@ -1,6 +1,6 @@
-// src/controllers/authController.ts
-// register + login. Both return a signed JWT the client stores and sends
-// back as an `Authorization: Bearer <token>` header on protected routes.
+
+
+
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -14,7 +14,7 @@ function signToken(userId: string): string {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
-// POST /api/auth/register -- body: { name, email, password, role? }
+
 export async function register(req: Request, res: Response): Promise<void> {
   const { name, email, password, role } = req.body as {
     name?: string;
@@ -48,7 +48,7 @@ export async function register(req: Request, res: Response): Promise<void> {
   });
 }
 
-// POST /api/auth/login -- body: { email, password }
+
 export async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = req.body as { email?: string; password?: string };
 
@@ -57,7 +57,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  // .select("+password") brings back the hash the schema hides by default.
+  
   const user = await User.findOne({ email }).select("+password");
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
