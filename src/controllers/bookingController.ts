@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { BookingModel, type IBooking } from "../models/Booking";
+import { BookingModel } from "../models/Booking";
 import { SessionModel } from "../models/Session";
 import { BookingStatus, type AuthenticatedRequest } from "../types";
 
@@ -65,6 +65,12 @@ export async function createBooking(
   res.status(201).json(booking);
 }
 
+// A booking only moves forward: requested -> confirmed -> completed.
+const NEXT_STATUS: Partial<Record<BookingStatus, BookingStatus>> = {
+  [BookingStatus.REQUESTED]: BookingStatus.CONFIRMED,
+  [BookingStatus.CONFIRMED]: BookingStatus.COMPLETED,
+};
+
 export async function updateBooking(
   req: Request,
   res: Response
@@ -75,28 +81,43 @@ export async function updateBooking(
     note?: string;
   };
 
-  const updates: Partial<Pick<IBooking, "status" | "note">> = {};
-  if (status !== undefined) updates.status = status;
-  if (note !== undefined) updates.note = note;
-
-  const booking = await BookingModel.findOneAndUpdate(
-    {
-      _id: req.params.id,
-      $or: [{ tutee: userId }, { tutor: userId }],
-    },
-    updates,
-    {
-      new: true,
-      runValidators: true,
-    }
-  )
-    .populate("session", "title subject")
-    .populate("tutor", "name");
+  const booking = await BookingModel.findOne({
+    _id: req.params.id,
+    $or: [{ tutee: userId }, { tutor: userId }],
+  });
 
   if (!booking) {
     res.status(404).json({ message: "Booking not found" });
     return;
   }
+
+  if (status !== undefined && status !== booking.status) {
+    if (booking.tutor.toString() !== userId) {
+      res.status(403).json({ message: "Only the tutor can change a booking's status" });
+      return;
+    }
+
+    const next = NEXT_STATUS[booking.status];
+    if (status !== next) {
+      res.status(400).json({
+        message: next
+          ? `A ${booking.status} booking can only become ${next}`
+          : `A ${booking.status} booking cannot change any more`,
+      });
+      return;
+    }
+
+    booking.status = status;
+  }
+
+  if (note !== undefined) booking.note = note;
+
+  await booking.save();
+  await booking.populate([
+    { path: "session", select: "title subject" },
+    { path: "tutee", select: "name" },
+    { path: "tutor", select: "name" },
+  ]);
   res.json(booking);
 }
 

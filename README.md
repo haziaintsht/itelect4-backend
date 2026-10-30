@@ -28,11 +28,11 @@ The frontend is [itelect4-project](https://github.com/haziaintsht/itelect4-proje
 | POST | `/api/auth/login` | public | `{ email, password }` |
 | GET | `/api/sessions` | public | — |
 | GET | `/api/sessions/:id` | public | — |
-| POST | `/api/sessions` | Bearer | `{ title, subject, description, sessionType?, meetingLink? }` |
+| POST | `/api/sessions` | Bearer, tutor only | `{ title, subject, description, sessionType?, meetingLink? }` |
 | GET | `/api/bookings` | Bearer | — |
 | GET | `/api/bookings/:id` | Bearer | — |
 | POST | `/api/bookings` | Bearer | `{ session, note }` |
-| PATCH | `/api/bookings/:id` | Bearer | `{ status?, note? }` |
+| PATCH | `/api/bookings/:id` | Bearer (status: tutor only) | `{ status?, note? }` |
 | DELETE | `/api/bookings/:id` | Bearer | — |
 | POST | `/api/ai` | Bearer, 5/min per user | `{ prompt }` (20–2000 characters) |
 
@@ -50,6 +50,14 @@ Returns `{ summary, focusTopics: string[1–3], level: "beginner" | "intermediat
 The pieces: `src/ai/gemini.ts` (client + call), `src/ai/prompt.ts` (system prompt, 2 few-shot
 examples, `<submission>` wrapping), `src/schemas/studyPlan.ts` (Zod request and reply schemas),
 `src/middleware/rateLimit.ts`, `src/controllers/aiController.ts` and `src/routes/aiRoutes.ts`.
+
+### Roles
+
+- `POST /api/sessions` answers **403** unless the logged-in account is a `tutor`. `requireRole` in
+  `src/middleware/auth.ts` reads the role from the database, so a role change needs no new login.
+- `PATCH /api/bookings/:id` with a `status`: only the booking's **tutor** may change it (**403** otherwise),
+  and only one step forward, `requested -> confirmed -> completed` (**400** for anything else).
+- `DELETE /api/bookings/:id`: the tutee cancels, or the tutor declines.
 
 ## Scripts
 - `npm run dev` — `tsx watch src/server.ts` (restarts on save)
