@@ -10,8 +10,6 @@ export const aiRequestSchema = z.object({
 
 const STUDY_LEVELS = ["beginner", "intermediate", "advanced"] as const;
 
-// The exact shape Gemini must reply with. The descriptions are sent to the
-// model as part of the JSON Schema, so they double as field instructions.
 export const studyPlanSchema = z.object({
   summary: z
     .string()

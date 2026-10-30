@@ -12,7 +12,6 @@ function tokenFor(userId: string): string {
   return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: "5m" });
 }
 
-// requireRole calls User.findById(id).select("role"); answer it without a database.
 function mockUserWithRole(role: string): void {
   vi.spyOn(User, "findById").mockReturnValue({
     select: async () => ({ role }),

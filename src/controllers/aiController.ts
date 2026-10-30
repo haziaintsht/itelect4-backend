@@ -17,7 +17,6 @@ export async function createStudyPlan(
     return;
   }
 
-  // The subjects that have sessions, so Gemini can point at one that exists.
   const subjects = await SessionModel.distinct("subject");
 
   try {

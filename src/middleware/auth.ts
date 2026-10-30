@@ -30,8 +30,6 @@ export function protect(
   }
 }
 
-// Runs after protect. The token only carries the user id, so the role is
-// read from the database -- a role change takes effect without a new login.
 export function requireRole(role: UserRole) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const user = await User.findById((req as AuthenticatedRequest).userId).select("role");

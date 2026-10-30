@@ -6,8 +6,6 @@ import {
   type StudyPlan,
 } from "../schemas/studyPlan";
 
-// Thrown when Gemini answers, but not with a study plan we can use.
-// The route turns it into a 502 Bad Gateway.
 export class AiReplyError extends Error {
   constructor(message: string) {
     super(message);

@@ -65,7 +65,6 @@ export async function createBooking(
   res.status(201).json(booking);
 }
 
-// A booking only moves forward: requested -> confirmed -> completed.
 const NEXT_STATUS: Partial<Record<BookingStatus, BookingStatus>> = {
   [BookingStatus.REQUESTED]: BookingStatus.CONFIRMED,
   [BookingStatus.CONFIRMED]: BookingStatus.COMPLETED,

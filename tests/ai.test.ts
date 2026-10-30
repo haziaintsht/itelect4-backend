@@ -3,8 +3,6 @@ import request from "supertest";
 import jwt from "jsonwebtoken";
 import app from "../src/app";
 
-// Replace the real database connection with a no-op, so these tests need
-// neither MongoDB nor Gemini.
 vi.mock("../src/config/db", () => ({
   connectDB: async () => {},
 }));

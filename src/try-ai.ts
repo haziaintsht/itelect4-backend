@@ -1,6 +1,3 @@
-// npm run try-ai -- "what you are stuck on"
-// Calls Gemini straight from the terminal, without Express or MongoDB,
-// to check that GEMINI_API_KEY and the network work.
 import "dotenv/config";
 import { generateStudyPlan } from "./ai/gemini";
 import { SESSIONS } from "./data/sessions";

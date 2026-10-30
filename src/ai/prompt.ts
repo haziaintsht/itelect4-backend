@@ -55,8 +55,6 @@ const MAX_SUBJECTS = 50;
 const MAX_SUBJECT_LENGTH = 40;
 
 export function wrap(text: string, subjects: string[]): string {
-  // Subjects are typed by tutors, so they are cleaned like the student's text.
-  // The limits keep the prompt small however many sessions exist.
   const safeSubjects = subjects
     .slice(0, MAX_SUBJECTS)
     .map((subject) => subject.replace(/[<>]/g, "").slice(0, MAX_SUBJECT_LENGTH));

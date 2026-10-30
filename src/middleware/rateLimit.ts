@@ -2,8 +2,6 @@ import type { Request } from "express";
 import { rateLimit } from "express-rate-limit";
 import type { AuthenticatedRequest } from "../types";
 
-// Runs after protect, so every request has a userId: the limit is per
-// account, not per IP address.
 export const aiLimiter = rateLimit({
   windowMs: 60 * 1000,
   limit: 5,
