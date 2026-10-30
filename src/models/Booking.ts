@@ -1,7 +1,7 @@
 import mongoose, { Schema, type Model } from "mongoose";
 import { BookingStatus } from "../types";
 
-export type IBooking = {
+type IBooking = {
   session: mongoose.Types.ObjectId;
   tutee: mongoose.Types.ObjectId;
   tutor: mongoose.Types.ObjectId;
