@@ -1,6 +1,6 @@
 import mongoose, { Schema, type Model } from "mongoose";
 
-export type ICourse = {
+type ICourse = {
   code: string;
   title: string;
   units: number;

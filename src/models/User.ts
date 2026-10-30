@@ -2,7 +2,7 @@ import mongoose, { Schema, type Model } from "mongoose";
 import bcrypt from "bcryptjs";
 import { UserRole } from "../types";
 
-export type IUser = {
+type IUser = {
   name: string;
   email: string;
   password: string;

@@ -16,16 +16,6 @@ export enum SessionType {
   GROUP = "group",
 }
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  bio: string;
-  skills: string[];
-  isActive: boolean;
-}
-
 export interface Session {
   id: string;
   title: string;
@@ -37,16 +27,6 @@ export interface Session {
   createdAt: Date;
   sessionType: SessionType;
   meetingLink: string;
-}
-
-export interface Booking {
-  id: string;
-  sessionId: string;
-  tuteeId: string;
-  tutorId: string;
-  status: BookingStatus;
-  requestedAt: Date;
-  note: string;
 }
 
 export interface Course {
