@@ -1,7 +1,7 @@
 import mongoose, { Schema, type Model } from "mongoose";
 import { BookingStatus, SessionType } from "../types";
 
-export type ISession = {
+type ISession = {
   title: string;
   subject: string;
   description: string;

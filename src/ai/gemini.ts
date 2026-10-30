@@ -17,7 +17,7 @@ export class AiReplyError extends Error {
 
 let client: GoogleGenAI | null = null;
 
-export function getClient(): GoogleGenAI {
+function getClient(): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {

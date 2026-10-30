@@ -8,7 +8,7 @@ export const aiRequestSchema = z.object({
     .max(2000, "Keep it under 2000 characters."),
 });
 
-export const STUDY_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+const STUDY_LEVELS = ["beginner", "intermediate", "advanced"] as const;
 
 // The exact shape Gemini must reply with. The descriptions are sent to the
 // model as part of the JSON Schema, so they double as field instructions.
@@ -31,7 +31,6 @@ export const studyPlanSchema = z.object({
     .describe("The subject to search sessions for. Use one of the listed subjects when one fits."),
 });
 
-export type AiRequest = z.infer<typeof aiRequestSchema>;
 export type StudyPlan = z.infer<typeof studyPlanSchema>;
 
 export const studyPlanJsonSchema = z.toJSONSchema(studyPlanSchema);
