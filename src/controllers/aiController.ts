@@ -30,6 +30,7 @@ export async function createStudyPlan(
       return;
     }
     if (err instanceof ApiError && err.status === 429) {
+      console.error("Gemini quota exhausted:", err.message);
       res.status(429).json({ message: "The AI is out of quota for now. Try again later." });
       return;
     }
