@@ -1,6 +1,3 @@
-// src/middleware/auth.ts
-// The JWT gate. Same idea as the frontend's ProtectedRoute from Session 6:
-// if the token is missing or bad, the request NEVER reaches the controller.
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import type { AuthenticatedRequest, JwtPayload } from "../types";
@@ -23,7 +20,7 @@ export function protect(
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    // Attach the owner's id so the controller knows WHO is asking.
+
     (req as AuthenticatedRequest).userId = decoded.userId;
     next();
   } catch {

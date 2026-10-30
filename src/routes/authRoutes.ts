@@ -1,5 +1,3 @@
-// src/routes/authRoutes.ts
-// Public: anyone can register and log in.
 import { Router } from "express";
 import { register, login } from "../controllers/authController";
 

@@ -1,16 +1,13 @@
-// src/models/Booking.ts
-// Mirrors the frontend Booking interface. This is the resource that gets
-// FULL CRUD: session/tutee/tutor are references, status is the same enum.
 import mongoose, { Schema, type Model } from "mongoose";
 import { BookingStatus } from "../types";
 
-export interface IBooking {
+export type IBooking = {
   session: mongoose.Types.ObjectId;
   tutee: mongoose.Types.ObjectId;
   tutor: mongoose.Types.ObjectId;
   status: BookingStatus;
   note: string;
-}
+};
 
 const bookingSchema = new Schema<IBooking>(
   {
@@ -22,10 +19,7 @@ const bookingSchema = new Schema<IBooking>(
       enum: Object.values(BookingStatus),
       default: BookingStatus.REQUESTED,
     },
-    // GT4's three validation rules on ONE resource: `required` (session/
-    // tutee/tutor/note), `enum` (status, above) and a min/max range here.
-    // 10-160 chars mirrors the frontend Zod rule (bookingSchema.ts) so the
-    // server enforces the same limit the browser already shows.
+
     note: {
       type: String,
       required: true,
@@ -36,6 +30,15 @@ const bookingSchema = new Schema<IBooking>(
   },
   { timestamps: true }
 );
+
+bookingSchema.set("toJSON", {
+  transform(_doc, ret: Record<string, unknown>) {
+    ret.id = String(ret._id);
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  },
+});
 
 export const BookingModel: Model<IBooking> = mongoose.model<IBooking>(
   "Booking",

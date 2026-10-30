@@ -1,10 +1,11 @@
 node_modules/
 dist/
-.env
-
 *.log
-.vercel/
 
-.vercel
+# Secrets stay on this machine. .env.example is the one that is shared.
+.env
 .env*
-tsconfig.json
+!.env.example
+
+# Vercel CLI link + pulled env files
+.vercel/

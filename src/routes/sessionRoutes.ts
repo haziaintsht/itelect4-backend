@@ -1,5 +1,3 @@
-// src/routes/sessionRoutes.ts
-// Reading is public; creating requires a logged-in user.
 import { Router } from "express";
 import {
   listSessions,

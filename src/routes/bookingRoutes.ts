@@ -1,5 +1,3 @@
-// src/routes/bookingRoutes.ts
-// EVERY route is behind the JWT gate: one router.use() protects them all.
 import { Router } from "express";
 import {
   listBookings,

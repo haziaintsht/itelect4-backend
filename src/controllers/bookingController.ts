@@ -1,13 +1,8 @@
-// src/controllers/bookingController.ts
-// FULL CRUD on bookings, and EVERY route runs behind the protect
-// middleware (the JWT gate) -- no token, no controller.
 import type { Request, Response } from "express";
 import { BookingModel, type IBooking } from "../models/Booking";
 import { SessionModel } from "../models/Session";
 import { BookingStatus, type AuthenticatedRequest } from "../types";
 
-// GET /api/bookings -- only bookings YOU are part of (you booked it, or
-// you are the tutor it was sent to).
 export async function listBookings(
   req: Request,
   res: Response
@@ -22,7 +17,6 @@ export async function listBookings(
   res.json(bookings);
 }
 
-// GET /api/bookings/:id -- scoped: someone else's booking is a 404 for you.
 export async function getBooking(
   req: Request,
   res: Response
@@ -42,9 +36,6 @@ export async function getBooking(
   res.json(booking);
 }
 
-// POST /api/bookings -- { session, note }; tutee = the logged-in user,
-// and the tutor comes FROM the session (mirrors what the frontend form
-// computes in BookingsPage.onSubmit).
 export async function createBooking(
   req: Request,
   res: Response
@@ -74,9 +65,6 @@ export async function createBooking(
   res.status(201).json(booking);
 }
 
-// PATCH /api/bookings/:id -- only `status` and `note` can be updated, and
-// only on a booking you are part of. req.body is NOT passed through: a
-// client can never reassign `tutee`/`tutor`/`session` and hijack scope.
 export async function updateBooking(
   req: Request,
   res: Response
@@ -98,8 +86,8 @@ export async function updateBooking(
     },
     updates,
     {
-      new: true, // return the document AFTER the update
-      runValidators: true, // re-check schema rules (e.g. the enum)
+      new: true,
+      runValidators: true,
     }
   )
     .populate("session", "title subject")
@@ -112,7 +100,6 @@ export async function updateBooking(
   res.json(booking);
 }
 
-// DELETE /api/bookings/:id -- scoped the same way as GET/PATCH.
 export async function deleteBooking(
   req: Request,
   res: Response
@@ -126,5 +113,5 @@ export async function deleteBooking(
     res.status(404).json({ message: "Booking not found" });
     return;
   }
-  res.status(204).end(); // 204 No Content
+  res.status(204).end();
 }

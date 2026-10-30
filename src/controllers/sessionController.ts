@@ -1,12 +1,7 @@
-// src/controllers/sessionController.ts
-// Reading sessions is public (like the frontend SessionsPage); creating
-// one needs a logged-in user. Sessions exist so bookings have something
-// to point at.
 import type { Request, Response } from "express";
 import { SessionModel } from "../models/Session";
 import type { AuthenticatedRequest } from "../types";
 
-// GET /api/sessions
 export async function listSessions(
   _req: Request,
   res: Response
@@ -15,7 +10,6 @@ export async function listSessions(
   res.json(sessions);
 }
 
-// GET /api/sessions/:id
 export async function getSession(
   req: Request,
   res: Response
@@ -31,7 +25,6 @@ export async function getSession(
   res.json(session);
 }
 
-// POST /api/sessions -- protected by the protect middleware
 export async function createSession(
   req: Request,
   res: Response
