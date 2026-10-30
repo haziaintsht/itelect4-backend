@@ -11,6 +11,7 @@ import authRoutes from "./routes/authRoutes";
 import sessionRoutes from "./routes/sessionRoutes";
 import bookingRoutes from "./routes/bookingRoutes";
 import courseRoutes from "./routes/courses";
+import aiRoutes from "./routes/aiRoutes";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({

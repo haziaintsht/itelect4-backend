@@ -8,12 +8,14 @@ The frontend is [itelect4-project](https://github.com/haziaintsht/itelect4-proje
 - **Mongoose** — MongoDB schemas that mirror the frontend's `User` / `Session` / `Booking` interfaces
 - **JWT** — signed tokens from login/register, verified by a `protect` middleware
 - **bcryptjs** — passwords stored as hashes, never plain text
+- **Gemini** (`@google/genai`) — the Study Planner behind `POST /api/ai`, with replies checked by **Zod** and limited by **express-rate-limit**
 - **TypeScript** — strict; import/export at compile time, erased at runtime (Session 2)
 
 ## Setup
 
 1. `npm install`
-2. Copy `.env.example` to `.env` and fill in `MONGODB_URI`, `JWT_SECRET` and the two `SEED_TUTOR_*` values
+2. Copy `.env.example` to `.env` and fill in `MONGODB_URI`, `JWT_SECRET`, the two `SEED_TUTOR_*` values
+   and `GEMINI_API_KEY` (from [Google AI Studio](https://aistudio.google.com/apikey))
 3. `npm run seed` — puts the demo tutor and the tutoring sessions into the database (safe to run again)
 4. `npm run dev` → http://localhost:4000 — prints `API on http://localhost:4000` and `MongoDB connected: itelect4`
 
@@ -32,6 +34,22 @@ The frontend is [itelect4-project](https://github.com/haziaintsht/itelect4-proje
 | POST | `/api/bookings` | Bearer | `{ session, note }` |
 | PATCH | `/api/bookings/:id` | Bearer | `{ status?, note? }` |
 | DELETE | `/api/bookings/:id` | Bearer | — |
+| POST | `/api/ai` | Bearer, 5/min per user | `{ prompt }` (20–2000 characters) |
+
+### `POST /api/ai` — Study Planner
+
+Returns `{ summary, focusTopics: string[1–3], level: "beginner" | "intermediate" | "advanced", suggestedSubject }`.
+
+| Status | When |
+| --- | --- |
+| 400 | `prompt` is missing, shorter than 20 or longer than 2000 characters |
+| 401 | no Bearer token, or it is invalid/expired |
+| 429 | more than 5 requests in a minute from this account, or the Gemini quota is used up |
+| 502 | Gemini replied with something that is empty, not JSON, or does not match the schema |
+
+The pieces: `src/ai/gemini.ts` (client + call), `src/ai/prompt.ts` (system prompt, 2 few-shot
+examples, `<submission>` wrapping), `src/schemas/studyPlan.ts` (Zod request and reply schemas),
+`src/middleware/rateLimit.ts`, `src/controllers/aiController.ts` and `src/routes/aiRoutes.ts`.
 
 ## Scripts
 - `npm run dev` — `tsx watch src/server.ts` (restarts on save)
@@ -39,6 +57,8 @@ The frontend is [itelect4-project](https://github.com/haziaintsht/itelect4-proje
 - `npm run start` — runs the compiled output
 - `npm run seed` — upserts the tutoring sessions in `src/data/sessions.ts`; running it twice changes nothing
 - `npm run typecheck` — `tsc --noEmit`
+- `npm run try-ai` — asks Gemini for a study plan straight from the terminal (no Express or MongoDB
+  needed) to check the key and the network. Add your own text: `npm run try-ai -- "I am stuck on recursion"`
 
 ## How it runs
 
@@ -56,7 +76,7 @@ There is no `vercel.json`: Vercel finds the Express app in `src/app.ts` by itsel
    Vercel's addresses change per request, so there is no fixed address to add. Keep your own entry too.
 2. Push to GitHub. On vercel.com: **Add New → Project → Import** `itelect4-backend`.
    Root Directory `./`, preset **Express**.
-3. Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, and `CORS_ORIGIN`.
+3. Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CORS_ORIGIN`, and `GEMINI_API_KEY`.
    `CORS_ORIGIN` starts as `http://localhost:3000` until the frontend is deployed, then becomes the
    frontend's `https://<name>.vercel.app` (no trailing slash) — redeploy after changing it.
    Do not add `PORT`, and do not press Add beside MongoDB Atlas.
