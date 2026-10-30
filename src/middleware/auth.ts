@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import type { AuthenticatedRequest, JwtPayload } from "../types";
+import { User } from "../models/User";
+import type { AuthenticatedRequest, JwtPayload, UserRole } from "../types";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "dev-secret-change-me";
 
@@ -27,4 +28,24 @@ export function protect(
     res.status(401).json({ message: "Token invalid or expired" });
     return;
   }
+}
+
+// Runs after protect. The token only carries the user id, so the role is
+// read from the database -- a role change takes effect without a new login.
+export function requireRole(role: UserRole) {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const user = await User.findById((req as AuthenticatedRequest).userId).select("role");
+
+    if (!user) {
+      res.status(401).json({ message: "This account no longer exists" });
+      return;
+    }
+
+    if (user.role !== role) {
+      res.status(403).json({ message: `Only ${role}s can do this` });
+      return;
+    }
+
+    next();
+  };
 }

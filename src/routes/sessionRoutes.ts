@@ -4,12 +4,13 @@ import {
   getSession,
   createSession,
 } from "../controllers/sessionController";
-import { protect } from "../middleware/auth";
+import { protect, requireRole } from "../middleware/auth";
+import { UserRole } from "../types";
 
 const router = Router();
 
 router.get("/", listSessions);
 router.get("/:id", getSession);
-router.post("/", protect, createSession);
+router.post("/", protect, requireRole(UserRole.TUTOR), createSession);
 
 export default router;
