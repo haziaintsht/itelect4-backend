@@ -111,14 +111,14 @@ Actions). That value is only used to sign test tokens, so it should not be your 
 | Database connection | started by `server.ts`, awaited by the middleware | opened by the first request, reused after |
 | Config | `.env` | Vercel → Settings → Environment Variables |
 
-There is no `vercel.json`: Vercel finds the Express app in `src/app.ts` by itself.
+`vercel.json` tells Vercel to serve every path from the Express app in `src/app.ts`.
 
 ## Deploy (Vercel)
 
 1. **Atlas → Network Access → Add IP Address → Allow access from anywhere** (`0.0.0.0/0`, comment `Vercel`).
    Vercel's addresses change per request, so there is no fixed address to add. Keep your own entry too.
 2. Push to GitHub. On vercel.com: **Add New → Project → Import** `itelect4-backend`.
-   Root Directory `./`, preset **Express**.
+   Root Directory `./`. `vercel.json` sets up the build, so the framework preset does not matter.
 3. Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CORS_ORIGIN`, and `GEMINI_API_KEY`.
    `CORS_ORIGIN` starts as `http://localhost:3000` until the frontend is deployed, then becomes the
    frontend's `https://<name>.vercel.app` (no trailing slash) — redeploy after changing it.
