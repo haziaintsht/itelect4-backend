@@ -1,7 +1,26 @@
 # itelect4-backend
 
-REST API for the Peer Tutoring platform — **Express + TypeScript + MongoDB (Mongoose) + JWT**.
-The frontend is [itelect4-project](https://github.com/haziaintsht/itelect4-project).
+[![CI](https://github.com/haziaintsht/itelect4-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/haziaintsht/itelect4-backend/actions/workflows/ci.yml)
+
+REST API for the Peer Tutoring platform — **Express + TypeScript + MongoDB (Mongoose) + JWT**, with a
+Gemini-powered Study Planner.
+
+- **Live API:** https://itelect4-backend.vercel.app/api/health
+- **Frontend repo:** [itelect4-project](https://github.com/haziaintsht/itelect4-project)
+
+## Architecture
+
+```mermaid
+flowchart LR
+  fe["itelect4-project<br/>React + Vite on Vercel"]
+  be["itelect4-backend<br/>Express on Vercel"]
+  db[("MongoDB Atlas")]
+  ai["Gemini API"]
+
+  fe -- "fetch + Bearer token" --> be
+  be -- "Mongoose" --> db
+  be -- "GEMINI_API_KEY" --> ai
+```
 
 ## Stack
 - **Express 5** — routing, middleware, error handling
@@ -65,8 +84,24 @@ examples, `<submission>` wrapping), `src/schemas/studyPlan.ts` (Zod request and 
 - `npm run start` — runs the compiled output
 - `npm run seed` — upserts the tutoring sessions in `src/data/sessions.ts`; running it twice changes nothing
 - `npm run typecheck` — `tsc --noEmit`
+- `npm test` — runs the integration tests in `tests/` (needs `JWT_SECRET`)
 - `npm run try-ai` — asks Gemini for a study plan straight from the terminal (no Express or MongoDB
   needed) to check the key and the network. Add your own text: `npm run try-ai -- "I am stuck on recursion"`
+
+## Testing and CI
+
+The tests use Vitest and Supertest against the real Express app. The database connection is replaced
+with a no-op, and no test reaches Gemini: a too-short prompt proves a request got past the login check
+without starting a Gemini call.
+
+| File | What it checks |
+| --- | --- |
+| `tests/ai.test.ts` | `POST /api/ai`: 401 with no token or a forged token, 400 for an invalid body, 429 on the sixth request in a minute |
+| `tests/sessions.test.ts` | `POST /api/sessions`: 401 with no token, 403 for a tutee, a tutor gets through |
+
+GitHub Actions (`.github/workflows/ci.yml`) runs `npm ci`, `npm run typecheck` and `npm test` on every
+push. It reads `JWT_SECRET` from the repository's Actions secrets (Settings → Secrets and variables →
+Actions). That value is only used to sign test tokens, so it should not be your real one.
 
 ## How it runs
 
@@ -91,3 +126,11 @@ There is no `vercel.json`: Vercel finds the Express app in `src/app.ts` by itsel
 4. Deploy. The preview says `No route for GET /` — that is this app's own 404, so the app is running.
 5. Open `https://<backend>.vercel.app/api/health`. It must answer `{"ok":true,"db":true}`.
    `db: false` (or a 500) means the Atlas access list or `MONGODB_URI` is wrong.
+
+## AI Disclosure
+
+- **In the app:** `POST /api/ai` sends the text a student types to Google Gemini. Its replies are
+  AI-generated and can be wrong.
+- **In development:** Claude Code, an AI coding assistant, was used to help write, test and document
+  this project, including the Study Planner, the tutor role checks, the automated tests and the CI
+  setup. I directed the work and am responsible for what is submitted.
