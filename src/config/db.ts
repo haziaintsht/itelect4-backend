@@ -1,18 +1,8 @@
-
-
-
-
 import mongoose from "mongoose";
-
-
-
 
 let connection: Promise<typeof mongoose> | null = null;
 
 export function connectDB(): Promise<typeof mongoose> {
-  
-  
-  
   const uri = process.env.MONGODB_URI;
 
   if (!uri) {
@@ -22,10 +12,6 @@ export function connectDB(): Promise<typeof mongoose> {
   }
 
   if (connection === null) {
-    
-    
-    
-    
     connection = mongoose
       .connect(uri, { serverSelectionTimeoutMS: 5000 })
       .then((m) => {
@@ -33,9 +19,6 @@ export function connectDB(): Promise<typeof mongoose> {
         return m;
       })
       .catch((err: unknown) => {
-        
-        
-        
         connection = null;
         throw err;
       });

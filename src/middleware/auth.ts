@@ -1,6 +1,3 @@
-
-
-
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import type { AuthenticatedRequest, JwtPayload } from "../types";
@@ -23,7 +20,7 @@ export function protect(
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    
+
     (req as AuthenticatedRequest).userId = decoded.userId;
     next();
   } catch {

@@ -56,21 +56,6 @@ export interface Course {
   semester: string;
 }
 
-export type CourseDoc = Pick<Course, "code" | "title" | "units" | "semester">;
-
-export type ID = number | string;
-export type StringOrNumber = string | number;
-
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-}
-
-export type SessionUpdate = Partial<Session>;
-export type PublicTutorView = Omit<User, "email">;
-export type StatusCounts = Record<BookingStatus, number>;
-
 export interface JwtPayload {
   userId: string;
 }

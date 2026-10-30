@@ -1,10 +1,5 @@
-
-
-
 import mongoose, { Schema, type Model } from "mongoose";
 import { BookingStatus } from "../types";
-
-
 
 export type IBooking = {
   session: mongoose.Types.ObjectId;
@@ -24,10 +19,7 @@ const bookingSchema = new Schema<IBooking>(
       enum: Object.values(BookingStatus),
       default: BookingStatus.REQUESTED,
     },
-    
-    
-    
-    
+
     note: {
       type: String,
       required: true,
@@ -38,9 +30,6 @@ const bookingSchema = new Schema<IBooking>(
   },
   { timestamps: true }
 );
-
-
-
 
 bookingSchema.set("toJSON", {
   transform(_doc, ret: Record<string, unknown>) {

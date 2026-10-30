@@ -1,10 +1,5 @@
-
-
-
 import mongoose, { Schema, type Model } from "mongoose";
 import { BookingStatus, SessionType } from "../types";
-
-
 
 export type ISession = {
   title: string;
@@ -21,7 +16,7 @@ const sessionSchema = new Schema<ISession>(
     title: { type: String, required: true, trim: true },
     subject: { type: String, required: true },
     description: { type: String, required: true },
-    
+
     tutor: { type: Schema.Types.ObjectId, ref: "User", required: true },
     status: {
       type: String,
@@ -37,9 +32,6 @@ const sessionSchema = new Schema<ISession>(
   },
   { timestamps: true }
 );
-
-
-
 
 sessionSchema.set("toJSON", {
   transform(_doc, ret: Record<string, unknown>) {

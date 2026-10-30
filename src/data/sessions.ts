@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 import { BookingStatus, SessionType, type SessionSeed } from "../types/index";
 
 export const SESSIONS: SessionSeed[] = [

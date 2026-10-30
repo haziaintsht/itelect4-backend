@@ -1,11 +1,6 @@
-
-
-
-
 import type { Request, Response } from "express";
 import { SessionModel } from "../models/Session";
 import type { AuthenticatedRequest } from "../types";
-
 
 export async function listSessions(
   _req: Request,
@@ -14,7 +9,6 @@ export async function listSessions(
   const sessions = await SessionModel.find().populate("tutor", "name email");
   res.json(sessions);
 }
-
 
 export async function getSession(
   req: Request,
@@ -30,7 +24,6 @@ export async function getSession(
   }
   res.json(session);
 }
-
 
 export async function createSession(
   req: Request,

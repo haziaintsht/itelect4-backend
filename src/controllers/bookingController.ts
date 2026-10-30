@@ -1,12 +1,7 @@
-
-
-
 import type { Request, Response } from "express";
 import { BookingModel, type IBooking } from "../models/Booking";
 import { SessionModel } from "../models/Session";
 import { BookingStatus, type AuthenticatedRequest } from "../types";
-
-
 
 export async function listBookings(
   req: Request,
@@ -21,7 +16,6 @@ export async function listBookings(
     .populate("tutor", "name");
   res.json(bookings);
 }
-
 
 export async function getBooking(
   req: Request,
@@ -41,9 +35,6 @@ export async function getBooking(
   }
   res.json(booking);
 }
-
-
-
 
 export async function createBooking(
   req: Request,
@@ -74,9 +65,6 @@ export async function createBooking(
   res.status(201).json(booking);
 }
 
-
-
-
 export async function updateBooking(
   req: Request,
   res: Response
@@ -98,8 +86,8 @@ export async function updateBooking(
     },
     updates,
     {
-      new: true, 
-      runValidators: true, 
+      new: true,
+      runValidators: true,
     }
   )
     .populate("session", "title subject")
@@ -111,7 +99,6 @@ export async function updateBooking(
   }
   res.json(booking);
 }
-
 
 export async function deleteBooking(
   req: Request,
@@ -126,5 +113,5 @@ export async function deleteBooking(
     res.status(404).json({ message: "Booking not found" });
     return;
   }
-  res.status(204).end(); 
+  res.status(204).end();
 }

@@ -1,6 +1,3 @@
-
-
-
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -13,7 +10,6 @@ const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? "7d") as jwt.SignOptions["
 function signToken(userId: string): string {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
-
 
 export async function register(req: Request, res: Response): Promise<void> {
   const { name, email, password, role } = req.body as {
@@ -48,7 +44,6 @@ export async function register(req: Request, res: Response): Promise<void> {
   });
 }
 
-
 export async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = req.body as { email?: string; password?: string };
 
@@ -57,7 +52,6 @@ export async function login(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  
   const user = await User.findOne({ email }).select("+password");
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
