@@ -9,6 +9,7 @@
     "start": "node dist/server.js",
     "seed": "tsx src/seed.ts",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run --reporter=verbose",
     "try-ai": "tsx src/try-ai.ts"
   },
   "keywords": [
@@ -36,7 +37,10 @@
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^26.0.0",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.3.1",
     "tsx": "^4.19.2",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.7"
   }
 }
